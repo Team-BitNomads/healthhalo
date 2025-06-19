@@ -1,0 +1,16 @@
+export const languages = [
+  { code: 'ha', name: 'Hausa' },
+  { code: 'yo', name: 'Yoruba' },
+  { code: 'ig', name: 'Igbo' },
+  { code: 'ff', name: 'Fulfulde' },
+  { code: 'yo-ng', name: 'Nigerian Pidgin' },
+  { code: 'ibb', name: 'Ibibio' },
+  { code: 'eds', name: 'Edo' },
+  { code: 'sw', name: 'Swahili' },
+  { code: 'zu', name: 'Zulu' },
+  { code: 'am', name: 'Amharic' },
+  { code: 'en', name: 'English' },
+  { code: 'fr', name: 'French' },
+  { code: 'pt', name: 'Portuguese' },
+  { code: 'ar', name: 'Arabic' },
+];
