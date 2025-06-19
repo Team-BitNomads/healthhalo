@@ -2,6 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Loader, XCircle } from 'lucide-react';
 
+import type { MetaFunction } from "@remix-run/node";
+
+export const meta: MetaFunction = () => [
+  { title: "Successful Payment | HealthHalo" },
+  { name: "description", content: "Payment Successful" },
+];
+
 const SuccessPage = () => {
   const [searchParams] = useSearchParams();
   const [verificationStatus, setVerificationStatus] = useState<'verifying' | 'success' | 'failed'>('verifying');

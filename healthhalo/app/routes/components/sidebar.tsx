@@ -38,9 +38,7 @@ const SidebarLink: React.FC<SidebarLinkProps> = ({ to, icon, children, isActive,
     }`}>
       {icon}
     </div>
-    <span className={`font-semibold overflow-hidden whitespace-nowrap transition-all duration-300 ${
-        isCollapsed ? 'w-0 ml-0 opacity-0' : 'w-auto ml-4 opacity-100'
-    }`}>
+    <span className={`font-semibold overflow-hidden whitespace-nowrap transition-all duration-300 ${isCollapsed ? 'w-0 ml-0 opacity-0' : 'w-auto ml-4 opacity-100'}`}>
         {children}
     </span>
     {isActive && !isCollapsed && (
@@ -77,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ currentPath, isCollapsed, onToggleCol
       
       <button 
         onClick={onToggleCollapse}
-        className="absolute -right-3 top-14 p-1.5 bg-white border border-slate-200 rounded-full z-50 shadow-md text-slate-500 hover:bg-slate-100 hover:text-emerald-600 transition-all"
+        className="absolute -right-3 top-14 z-10 p-1.5 bg-white border border-slate-200 rounded-full shadow-md text-slate-500 hover:bg-slate-100 hover:text-emerald-600 transition-all"
       >
         {isCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
       </button>

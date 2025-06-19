@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom"; // No need for useNavigate here anymore
+import { Link } from "react-router-dom";
 import WelcomeModal from "./welcomeModal";
 import { generateHealthTips } from "../../data/healthTips";
 import type { UserProfile, HealthTip } from "../../data/healthTips";
@@ -12,6 +12,26 @@ import {
   ArrowRight,
   TrendingUp,
 } from "lucide-react";
+
+// --- HELPER FUNCTION TO CHECK PROFILE COMPLETENESS ---
+// This function makes the logic clean and easy to update.
+const isProfileFullyFilled = (profile: UserProfile | null): boolean => {
+  if (!profile) {
+    return false; // If there's no profile, it's not complete.
+  }
+
+  // List of essential fields that must have a value.
+  const requiredFields: (keyof UserProfile)[] = [
+    'fullName',
+    'dob',
+    'gender',
+    'activityLevel'
+  ];
+
+  // The 'every' method checks if ALL fields in the list have a non-empty value.
+  return requiredFields.every(field => profile[field] && profile[field] !== '');
+};
+
 
 const DashboardLayout = () => {
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -29,8 +49,13 @@ const DashboardLayout = () => {
     const savedProfileString = localStorage.getItem("userProfile");
     const userProfile: UserProfile | null = savedProfileString ? JSON.parse(savedProfileString) : null;
 
-    if (userProfile?.dob) setIsProfileComplete(true);
-    if (userProfile?.fullName) setUserName(userProfile.fullName.split(' ')[0]);
+    // --- DYNAMIC PROFILE CHECK ---
+    // We now use our new helper function for a much more accurate check.
+    setIsProfileComplete(isProfileFullyFilled(userProfile));
+
+    if (userProfile?.fullName) {
+      setUserName(userProfile.fullName.split(' ')[0]);
+    }
 
     setHealthTips(generateHealthTips(userProfile));
   }, []);
@@ -44,6 +69,7 @@ const DashboardLayout = () => {
         <h1 className="text-3xl font-bold text-slate-800 tracking-tight">{userName}'s Health Dashboard</h1>
       </div>
 
+      {/* This banner will now only show if the profile is truly incomplete. */}
       {!isProfileComplete && (
         <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white p-5 rounded-xl mb-8 flex items-center justify-between shadow-lg">
           <div className='flex items-center'>
@@ -59,17 +85,11 @@ const DashboardLayout = () => {
         </div>
       )}
 
-      {/* --- THE FIX IS HERE: All cards are now <Link> components --- */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      {/* --- "Active Plan" card has been REMOVED and grid updated --- */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Link to="/wallet" className="group bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 hover:shadow-lg hover:-translate-y-1 transition-all">
           <h3 className="text-sm font-semibold text-slate-500 group-hover:text-emerald-600 transition-colors">Wallet Balance</h3>
           <p className="text-3xl font-bold text-slate-800 mt-1">₦ 15,250</p>
-        </Link>
-        
-        {/* We'll link the Active Plan card to the profile for now, as that's a logical place for plan details */}
-        <Link to="/profile" className="group bg-white p-5 rounded-xl shadow-sm border border-slate-200/80 hover:shadow-lg hover:-translate-y-1 transition-all">
-          <h3 className="text-sm font-semibold text-slate-500 group-hover:text-emerald-600 transition-colors">Active Plan</h3>
-          <p className="text-3xl font-bold text-emerald-600 mt-1">Family Plus</p>
         </Link>
         
         <Link to="/chatbot" className="group bg-emerald-500 text-white p-5 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all flex flex-col justify-center items-center text-center">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from './components/sidebar'; // Your beautiful new sidebar
-import DashboardLayout from './components/dashboardLayout'; // The content block we just made
+import DashboardLayout from './components/dashboardLayout'; // The content block
 import { Bell, Search, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
@@ -12,31 +12,38 @@ export const meta: MetaFunction = () => [
 ];
 
 const DashboardHomePage = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // State for the mobile sidebar (drawer)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  // --- STEP 1: Add state to manage the desktop sidebar's collapsed state ---
+  const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const location = useLocation();
 
   return (
     <div className="flex h-screen bg-slate-100">
       {/* --- Desktop Sidebar --- */}
-      <div className="hidden lg:block w-72 flex-shrink-0">
+      {/* --- STEP 2: The container now has dynamic width and relative positioning --- */}
+      <div className={`relative hidden lg:block flex-shrink-0 transition-all duration-300 ease-in-out ${
+        isDesktopSidebarCollapsed ? 'w-24' : 'w-72'
+      }`}>
         <Sidebar
           currentPath={location.pathname}
-          isCollapsed={false}
-          onToggleCollapse={() => {}}
+          // --- STEP 3: Pass the state and the function to control it ---
+          isCollapsed={isDesktopSidebarCollapsed}
+          onToggleCollapse={() => setIsDesktopSidebarCollapsed(!isDesktopSidebarCollapsed)}
         />
       </div>
 
       {/* --- Mobile Sidebar (Drawer) --- */}
-      <div className={`fixed inset-0 z-40 lg:hidden transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className={`fixed inset-0 z-40 lg:hidden transition-transform duration-300 ${isMobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="w-72 h-full">
           <Sidebar
             currentPath={location.pathname}
-            isCollapsed={false}
-            onToggleCollapse={() => {}}
-            onLinkClick={() => setIsSidebarOpen(false)}
+            isCollapsed={false} // Mobile sidebar is never collapsed
+            onToggleCollapse={() => {}} // Not needed for mobile
+            onLinkClick={() => setIsMobileSidebarOpen(false)}
           />
         </div>
-        <div className="fixed inset-0 bg-black/30" onClick={() => setIsSidebarOpen(false)}></div>
+        <div className="fixed inset-0 bg-black/30" onClick={() => setIsMobileSidebarOpen(false)}></div>
       </div>
 
       {/* --- Main Content Area --- */}
@@ -44,7 +51,7 @@ const DashboardHomePage = () => {
         {/* Header Bar */}
         <header className="bg-white/95 backdrop-blur-sm border-b border-slate-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center">
-            <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="lg:hidden mr-4 text-slate-600">
+            <button onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)} className="lg:hidden mr-4 text-slate-600">
                 <Menu />
             </button>
             <h1 className="text-xl font-bold text-slate-800">Dashboard</h1>
@@ -64,7 +71,7 @@ const DashboardHomePage = () => {
           </div>
         </header>
 
-        {/* --- Placing the content block in the main area --- */}
+        {/* Placing the content block in the main area */}
         <main className="flex-1 p-6 lg:p-8 overflow-y-auto">
           <DashboardLayout />
         </main>
