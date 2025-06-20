@@ -6,6 +6,7 @@ import FeaturesSection from './components/featuresSection';
 import AboutUsSection from './components/aboutUs';
 import Footer from './components/footer';
 import '../app.css';
+import './i18n';
 
 export const meta: MetaFunction = () => [
   { title: "HealthHalo" },

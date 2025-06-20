@@ -1,0 +1,70 @@
+{
+  "navbar": {
+    "features": "Awọn ẹya",
+    "about_us": "Nipa Wa",
+    "contact": "Kan si Wa",
+    "get_started": "Bẹrẹ"
+  },
+  "landing": {
+    "hero_title": "Itọsọna <1>Iṣeduro Ilera</1> Ti Ara Rẹ fun Afirika.",
+    "hero_subtitle": "HealthHalo nlo AI lati wa awọn eto iṣeduro ilera ti o rọrun fun iwọ ati ẹbi rẹ.",
+    "hero_feature1": "Awọn iṣeduro pẹlu agbara AI",
+    "hero_feature2": "Sọrọ ni ede abinibi rẹ",
+    "hero_feature3": "Isanwo irọrun nipasẹ Owo Alagbeka"
+  },
+  "auth": {
+    "join_title": "Darapọ mọ HealthHalo",
+    "join_subtitle": "Bẹrẹ irin-ajo rẹ si agbegbe ilera to dara julọ.",
+    "login_title": "Kaabọ Pada!",
+    "login_subtitle": "Wọle si Apamọwọ Ilera rẹ ki o tẹsiwaju.",
+    "full_name_label": "Orukọ Kikun",
+    "full_name_placeholder": "Tẹ orukọ rẹ kikun sii",
+    "email_label": "Adirẹsi Imeeli",
+    "email_placeholder": "Tẹ adirẹsi imeeli rẹ sii",
+    "password_label": "Ọrọigbaniwọle",
+    "password_placeholder": "Tẹ ọrọigbaniwọle rẹ sii",
+    "phone_label": "Nọmba Foonu",
+    "phone_placeholder": "fun apẹẹrẹ, +234...",
+    "language_label": "Ede Ti o Fẹran",
+    "language_placeholder": "Yan ede rẹ",
+    "terms_agree": "Mo gba si",
+    "terms_link": "Awọn Ofin ati Amulo",
+    "create_account_button": "Ṣẹda Akanti Rẹ",
+    "login_button": "Wọle si Akanti Rẹ",
+    "already_have_account": "Ṣe o ti ni akanti tẹlẹ?",
+    "signin_instead": "Wọle dipo",
+    "new_to_healthhalo": "Ṣe o ṣẹṣẹ darapọ mọ HealthHalo?",
+    "create_new_account": "Ṣẹda akanti tuntun"
+  },
+  "sidebar": {
+    "main_menu": "Akoonu Akọkọ",
+    "dashboard": "Dashboardi",
+    "ai_assistant": "Oluranlọwọ AI",
+    "health_wallet": "Apamọwọ Ilera",
+    "my_claims": "Awọn Ẹsun Mi",
+    "profile": "Profaili",
+    "logout": "Jade Kuro"
+  },
+  "dashboard": {
+    "welcome_back": "Kaabọ Pada,",
+    "title": "Dashboardi Ilera ti {{name}}",
+    "complete_profile_title": "Ṣi Agbara Rẹ Silẹ",
+    "complete_profile_subtitle": "Pari profaili rẹ fun awọn iṣeduro ti ara ẹni.",
+    "complete_profile_button": "Pari Profaili",
+    "wallet_balance": "Iṣura Apamọwọ",
+    "talk_to_ai": "Ba AI Sọrọ",
+    "file_claim": "Fi Ẹsun Kan",
+    "health_focus_title": "Abojuto Ilera nipasẹ AI"
+  },
+  "footer": {
+    "tagline": "Ṣiṣe iṣeduro ilera ni irọrun fun gbogbo eniyan.",
+    "company_header": "Ile-iṣẹ",
+    "about_us": "Nipa Wa",
+    "careers": "Awọn Iṣẹ",
+    "partners": "Awọn Alabaṣepọ",
+    "resources_header": "Awọn Ohun elo",
+    "blog": "Buloọgu",
+    "help_center": "Ile-iṣẹ Iranlọwọ",
+    "faqs": "Awọn Ibeere"
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "navbar": {
+    "features": "Features",
+    "about_us": "About Us",
+    "contact": "Contact",
+    "get_started": "Get Started"
+  },
+  "landing": {
+    "hero_title": "Your Personal <1>Health Insurance</1> Guide for Africa.",
+    "hero_subtitle": "HealthHalo uses advanced AI to find affordable, personalized health insurance plans for you and your family.",
+    "hero_feature1": "AI-powered recommendations",
+    "hero_feature2": "Chat in your local language",
+    "hero_feature3": "Easy payments via Mobile Money"
+  },
+  "auth": {
+    "join_title": "Join HealthHalo",
+    "join_subtitle": "Start your journey to better health coverage.",
+    "login_title": "Welcome Back!",
+    "login_subtitle": "Access your Health Wallet and continue.",
+    "full_name_label": "Full Name",
+    "full_name_placeholder": "Enter your full name",
+    "email_label": "Email Address",
+    "email_placeholder": "Enter your email address",
+    "password_label": "Password",
+    "password_placeholder": "Enter your password",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "e.g., +234...",
+    "language_label": "Preferred Language",
+    "language_placeholder": "Choose your language",
+    "terms_agree": "I agree to the",
+    "terms_link": "Terms and Conditions",
+    "create_account_button": "Create Your Account",
+    "login_button": "Sign In to Your Account",
+    "already_have_account": "Already have an account?",
+    "signin_instead": "Sign in instead",
+    "new_to_healthhalo": "New to HealthHalo?",
+    "create_new_account": "Create a new account"
+  },
+  "sidebar": {
+    "main_menu": "Main Menu",
+    "dashboard": "Dashboard",
+    "ai_assistant": "AI Assistant",
+    "health_wallet": "Health Wallet",
+    "my_claims": "My Claims",
+    "profile": "Profile",
+    "logout": "Log Out"
+  },
+  "dashboard": {
+    "welcome_back": "Welcome Back,",
+    "title": "{{name}}'s Health Dashboard",
+    "complete_profile_title": "Unlock Your Full Potential",
+    "complete_profile_subtitle": "Complete your profile for truly personalized recommendations.",
+    "complete_profile_button": "Complete Profile",
+    "wallet_balance": "Wallet Balance",
+    "talk_to_ai": "Talk to AI",
+    "file_claim": "File a Claim",
+    "health_focus_title": "AI-Generated Health Focus"
+  },
+  "footer": {
+    "tagline": "Simplifying health insurance for everyone.",
+    "company_header": "Company",
+    "about_us": "About Us",
+    "careers": "Careers",
+    "partners": "Partners",
+    "resources_header": "Resources",
+    "blog": "Blog",
+    "help_center": "Help Center",
+    "faqs": "FAQs"
+  }
+}
