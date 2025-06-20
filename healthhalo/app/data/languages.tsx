@@ -1,4 +1,5 @@
 export const languages = [
+  { code: 'en', name: 'English' },
   { code: 'ha', name: 'Hausa' },
   { code: 'yo', name: 'Yoruba' },
   { code: 'ig', name: 'Igbo' },
@@ -9,7 +10,6 @@ export const languages = [
   { code: 'sw', name: 'Swahili' },
   { code: 'zu', name: 'Zulu' },
   { code: 'am', name: 'Amharic' },
-  { code: 'en', name: 'English' },
   { code: 'fr', name: 'French' },
   { code: 'pt', name: 'Portuguese' },
   { code: 'ar', name: 'Arabic' },

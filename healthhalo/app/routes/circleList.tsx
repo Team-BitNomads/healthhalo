@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Sidebar from './components/sidebar';
-import CirclesLayout from './components/circleLayout'; // The new content block
+import CirclesLayout from './components/circles/circleLayout'; // The new content block
 import { Bell, Search, Menu } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 

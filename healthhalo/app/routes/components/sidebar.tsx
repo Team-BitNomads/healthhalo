@@ -179,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {
       to: "/circles",
       icon: <Users className="h-5 w-5" />,
-      label: "PamojaCare Circles",
+      label: "HealthHalo Circles",
     },
     {
       to: "/wallet",
