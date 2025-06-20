@@ -176,7 +176,7 @@ const DashboardLayout = () => {
 
         {/* Claims Card */}
         <Link 
-          to="/claims" 
+          to="/circles" 
           className="group bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 text-white p-6 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 relative overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
@@ -184,7 +184,7 @@ const DashboardLayout = () => {
             <div className="bg-white/20 p-3 rounded-xl mb-3 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
               <FileText size={28} />
             </div>
-            <p className="font-bold text-lg">File a Claim</p>
+            <p className="font-bold text-lg">Set up Your Health Insurance</p>
             <p className="text-xs opacity-80 mt-1">Quick & easy process</p>
           </div>
         </Link>

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios"; // Import axios for API calls
-import { getCookie } from "../../utils/getCookie"; // Import your cookie helper
+import axios from "axios"; // For making API calls
+import { getCookie } from "../../utils/getCookie"; // Your cookie helper
 import {
   LayoutDashboard,
   Wallet,
@@ -15,7 +15,7 @@ import {
   ChevronLeft,
   AlertTriangle,
   X,
-  Loader, // Import Loader for the modal button
+  Loader,
 } from "lucide-react";
 
 const API_BASE_URL = "https://healthhalo.onrender.com";
@@ -25,7 +25,7 @@ interface LogoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
-  isLoading: boolean; // Prop to show loading state
+  isLoading: boolean;
 }
 const LogoutModal: React.FC<LogoutModalProps> = ({
   isOpen,
@@ -141,13 +141,12 @@ const Sidebar: React.FC<SidebarProps> = ({
   const handleLogoutConfirm = async () => {
     setIsLoggingOut(true);
     try {
-      // As per the docs, we need credentials and CSRF token for this state-changing request
       await axios.post(
         `${API_BASE_URL}/api/user-auth/logout/`,
         {},
         {
           headers: { "X-CSRFToken": getCookie("csrftoken") || "" },
-          withCredentials: true, // This is crucial for sending the HttpOnly refresh token cookie
+          withCredentials: true,
         }
       );
       console.log("Backend logout successful.");
@@ -157,9 +156,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         error
       );
     } finally {
-      // This part runs whether the API call succeeds or fails
       localStorage.removeItem("access_token");
       localStorage.removeItem("userProfile");
+      localStorage.removeItem("isNewUser"); // Also clear this flag
       setIsLoggingOut(false);
       setIsLogoutModalOpen(false);
       navigate("/");
@@ -180,7 +179,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     {
       to: "/circles",
       icon: <Users className="h-5 w-5" />,
-      label: "HealthHalo Circles",
+      label: "PamojaCare Circles",
     },
     {
       to: "/wallet",
@@ -202,6 +201,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         onConfirm={handleLogoutConfirm}
         isLoading={isLoggingOut}
       />
+
       <div className="relative flex flex-col h-full bg-gradient-to-b from-white via-slate-50/50 to-white p-4 border-r border-slate-200/60 backdrop-blur-sm transition-all duration-300">
         <button
           onClick={onToggleCollapse}
@@ -249,7 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               key={link.label}
               to={link.to}
               icon={link.icon}
-              isActive={currentPath.startsWith(link.to)}
+              isActive={currentPath === link.to}
               isCollapsed={isCollapsed}
               onClick={onLinkClick}
             >
