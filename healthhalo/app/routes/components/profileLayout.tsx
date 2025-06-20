@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
+import axios from "axios";
 import {
   User,
   Calendar,
   Heart,
-  Shield,
   Activity,
-  Users,
-  Info,
+  Briefcase,
   CheckCircle,
   Sparkles,
   UserCircle,
-  MapPin,
-  Briefcase,
-  DollarSign,
 } from "lucide-react";
 
-// --- NEW: Define the profile state to match the API exactly ---
-interface UserProfile {
+const API_BASE_URL = "https://healthhalo.onrender.com";
+
+// A profile type that EXACTLY matches the backend API response
+interface ApiUserProfile {
   full_name: string;
   date_of_birth: string;
   gender: "M" | "F" | "";
@@ -25,7 +22,7 @@ interface UserProfile {
   occupation: string;
   location: string;
   income_range: string;
-  height_cm: number | string; // Use string for input, convert on submit
+  height_cm: number | string;
   weight_kg: number | string;
   conditions: string[];
   medications: string[];
@@ -43,44 +40,31 @@ interface UserProfile {
   insurance_details: string;
 }
 
-const API_BASE_URL = "https://healthhalo.onrender.com"; 
+// --- FIX #1: FormSection is moved OUTSIDE the main component to prevent re-creation ---
+const FormSection: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}> = ({ title, icon, children }) => (
+  <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/60">
+    <h3 className="text-lg font-semibold text-slate-700 flex items-center mb-6 border-b border-slate-200 pb-3">
+      {icon}
+      {title}
+    </h3>
+    {children}
+  </div>
+);
 
 const ProfileLayout = () => {
-  // --- Initialize state with correct types ---
-  const [profile, setProfile] = useState<UserProfile>({
-    full_name: "",
-    date_of_birth: "",
-    gender: "",
-    marital_status: "",
-    occupation: "",
-    location: "",
-    income_range: "",
-    height_cm: "",
-    weight_kg: "",
-    conditions: [],
-    medications: [],
-    allergies: [],
-    surgeries: [],
-    family_history: [],
-    is_smoker: false,
-    alcohol_use: false,
-    exercise_frequency: "",
-    diet_type: "",
-    sleep_hours: "",
-    knows_blood_pressure: false,
-    bp_checked_recently: false,
-    has_insurance: false,
-    insurance_details: "",
-  });
-
+  const [profile, setProfile] = useState<ApiUserProfile | null>(null);
   const [saveStatus, setSaveStatus] = useState<
     "idle" | "fetching" | "saving" | "success" | "error"
   >("fetching");
   const [error, setError] = useState<string | null>(null);
 
-  // --- FETCH data from the backend when the component mounts ---
   useEffect(() => {
     const fetchProfile = async () => {
+      setSaveStatus("fetching");
       const token = localStorage.getItem("access_token");
       if (!token) {
         setError("Authentication token not found. Please log in again.");
@@ -92,22 +76,27 @@ const ProfileLayout = () => {
         const response = await axios.get(`${API_BASE_URL}/api/health-sub/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-
-        // The API returns arrays, so we don't need to parse them from strings
-        setProfile(response.data);
+        // Ensure arrays are initialized properly even if they are null from API
+        setProfile({
+          ...response.data,
+          conditions: response.data.conditions || [],
+          medications: response.data.medications || [],
+          allergies: response.data.allergies || [],
+          surgeries: response.data.surgeries || [],
+          family_history: response.data.family_history || [],
+        });
         setSaveStatus("idle");
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
-          console.log("No profile found, user can create a new one.");
-          setSaveStatus("idle"); // It's not an error if the profile doesn't exist yet
+          // It's a new user, so initialize with an empty but valid profile object
+          setProfile({} as ApiUserProfile);
+          setSaveStatus("idle");
         } else {
-          console.error("Failed to fetch profile:", err);
           setError("Failed to load your profile. Please try again later.");
           setSaveStatus("error");
         }
       }
     };
-
     fetchProfile();
   }, []);
 
@@ -117,47 +106,44 @@ const ProfileLayout = () => {
     >
   ) => {
     const { name, value, type } = e.target;
-    // Handle boolean conversion for radio buttons/selects
-    if (
-      type === "radio" ||
-      name === "is_smoker" ||
-      name === "alcohol_use" ||
-      name === "has_insurance" ||
-      name === "knows_blood_pressure" ||
-      name === "bp_checked_recently"
-    ) {
-      setProfile((prev) => ({ ...prev, [name]: value === "true" }));
-    } else {
-      setProfile((prev) => ({ ...prev, [name]: value }));
-    }
+    const isBoolean = [
+      "is_smoker",
+      "alcohol_use",
+      "has_insurance",
+      "knows_blood_pressure",
+      "bp_checked_recently",
+    ].includes(name);
+    setProfile((prev) =>
+      prev ? { ...prev, [name]: isBoolean ? value === "true" : value } : null
+    );
   };
 
-  const handleMultiSelectChange = (name: keyof UserProfile, value: string) => {
+  const handleMultiSelectChange = (
+    name: keyof ApiUserProfile,
+    value: string
+  ) => {
     setProfile((prev) => {
+      if (!prev) return null;
       const currentValues = (prev[name] as string[]) || [];
-      if (currentValues.includes(value)) {
-        return { ...prev, [name]: currentValues.filter((v) => v !== value) };
-      } else {
-        return { ...prev, [name]: [...currentValues, value] };
-      }
+      const newValues = currentValues.includes(value)
+        ? currentValues.filter((v) => v !== value)
+        : [...currentValues, value];
+      return { ...prev, [name]: newValues };
     });
   };
 
-  // --- SAVE data to the backend ---
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!profile) return;
     setSaveStatus("saving");
     setError(null);
     const token = localStorage.getItem("access_token");
-
-    // Prepare payload, converting necessary fields to correct types
     const payload = {
       ...profile,
       height_cm: Number(profile.height_cm) || 0,
       weight_kg: Number(profile.weight_kg) || 0,
       sleep_hours: Number(profile.sleep_hours) || 0,
     };
-
     try {
       await axios.put(`${API_BASE_URL}/api/health-sub/`, payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -165,7 +151,6 @@ const ProfileLayout = () => {
       setSaveStatus("success");
       setTimeout(() => setSaveStatus("idle"), 2000);
     } catch (err) {
-      console.error("Failed to save profile:", err);
       setError(
         "Failed to save profile. Please check your inputs and try again."
       );
@@ -173,24 +158,10 @@ const ProfileLayout = () => {
     }
   };
 
-  // Reusable component for form sections
-  const FormSection: React.FC<{
-    title: string;
-    icon: React.ReactNode;
-    children: React.ReactNode;
-  }> = ({ title, icon, children }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/60">
-      <h3 className="text-lg font-semibold text-slate-700 flex items-center mb-6 border-b border-slate-200 pb-3">
-        {icon}
-        {title}
-      </h3>
-      {children}
-    </div>
-  );
-
-  if (saveStatus === "fetching") return <div>Loading Profile...</div>;
-  if (saveStatus === "error")
-    return <div className="text-red-500">{error}</div>;
+  if (saveStatus === "fetching")
+    return <div className="text-center p-10">Loading Profile...</div>;
+  if (error) return <div className="text-red-500 p-10">{error}</div>;
+  if (!profile) return <div>Could not load profile information.</div>;
 
   return (
     <div className="animate-fadeInUp">
@@ -220,9 +191,24 @@ const ProfileLayout = () => {
             {saveStatus === "success" && "Profile Saved!"}
           </button>
         </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-8">
+            <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/60 text-center">
+              <div className="relative w-32 h-32 mx-auto mb-4">
+                <div className="w-full h-full bg-gradient-to-br from-emerald-400 to-teal-500 rounded-full flex items-center justify-center shadow-lg">
+                  <UserCircle className="h-20 w-20 text-white/80" />
+                </div>
+                <button
+                  type="button"
+                  className="absolute -bottom-1 -right-1 p-2 bg-white rounded-full shadow-md hover:bg-slate-100 transition"
+                >
+                  <Sparkles className="h-5 w-5 text-emerald-600" />
+                </button>
+              </div>
+              <h2 className="text-xl font-bold text-slate-800">
+                {profile.full_name || "Your Name"}
+              </h2>
+            </div>
             <FormSection
               title="Demographics"
               icon={<User className="mr-2 text-emerald-600" />}
@@ -266,42 +252,7 @@ const ProfileLayout = () => {
                 </select>
               </div>
             </FormSection>
-            <FormSection
-              title="Socio-Economic"
-              icon={<Briefcase className="mr-2 text-emerald-600" />}
-            >
-              <div className="space-y-4">
-                <input
-                  type="text"
-                  name="occupation"
-                  placeholder="Occupation"
-                  value={profile.occupation}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-slate-300 rounded-md"
-                />
-                <input
-                  type="text"
-                  name="location"
-                  placeholder="Location (e.g., Lagos)"
-                  value={profile.location}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-slate-300 rounded-md"
-                />
-                <select
-                  name="income_range"
-                  value={profile.income_range}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-slate-300 rounded-md"
-                >
-                  <option value="">Income (NGN)</option>
-                  <option>Below 50,000</option>
-                  <option>50,000-150,000</option>
-                  <option>Above 150,000</option>
-                </select>
-              </div>
-            </FormSection>
           </div>
-
           <div className="lg:col-span-2 space-y-8">
             <FormSection
               title="Medical History"
@@ -365,7 +316,6 @@ const ProfileLayout = () => {
                 </div>
               </div>
             </FormSection>
-
             <FormSection
               title="Lifestyle & Vitals"
               icon={<Activity className="mr-2 text-emerald-600" />}
