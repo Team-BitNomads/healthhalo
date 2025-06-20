@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Wallet, PlusCircle, ArrowRight, ArrowDownCircle, Shield, X, Loader } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 
-// --- UPDATED: Add 'Withdrawal' to the transaction type ---
 interface Transaction {
     id: string;
     type: 'Wallet Top-up' | 'Premium Payment' | 'Co-pay' | 'Withdrawal';
@@ -11,7 +10,6 @@ interface Transaction {
     status: 'successful' | 'pending' | 'failed';
 }
 
-// --- NEW: A reusable modal component for withdrawal confirmation ---
 interface WithdrawalModalProps {
     isOpen: boolean;
     onClose: () => void;
@@ -60,7 +58,6 @@ const WalletLayout = () => {
   const [isTopUpLoading, setIsTopUpLoading] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  // --- NEW STATE for Withdrawal ---
   const [withdrawalAmount, setWithdrawalAmount] = useState<string>('');
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawPassword, setWithdrawPassword] = useState('');
@@ -101,7 +98,6 @@ const WalletLayout = () => {
     }
   };
 
-  // --- NEW HANDLERS for Withdrawal ---
   const handleInitiateWithdrawal = (e: React.FormEvent) => {
     e.preventDefault();
     const amount = parseFloat(withdrawalAmount);
@@ -114,13 +110,10 @@ const WalletLayout = () => {
     if (!withdrawPassword) return alert("Please enter your password to confirm.");
     setIsWithdrawing(true);
     
-    // Simulate API call and confirmation
     setTimeout(() => {
-      // 1. Calculate new balance
       const amount = parseFloat(withdrawalAmount);
       const newBalance = balance - amount;
       
-      // 2. Create new transaction record
       const newTransaction: Transaction = {
         id: `WTH-${Date.now()}`,
         type: 'Withdrawal',
@@ -129,17 +122,15 @@ const WalletLayout = () => {
         status: 'successful'
       };
 
-      // 3. Update localStorage
       localStorage.setItem('walletBalance', newBalance.toString());
       const updatedHistory = [newTransaction, ...transactions];
       localStorage.setItem('transactionHistory', JSON.stringify(updatedHistory));
 
-      // 4. Update state and reset forms
       setIsWithdrawing(false);
       setIsWithdrawModalOpen(false);
       setWithdrawalAmount('');
       setWithdrawPassword('');
-      loadWalletData(); // Reload all data to ensure UI consistency
+      loadWalletData();
       alert("Withdrawal successful!");
     }, 2000);
   };
@@ -161,7 +152,6 @@ const WalletLayout = () => {
           <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white p-8 rounded-2xl shadow-2xl"><div className="flex items-center justify-between"><p className="text-lg opacity-80">Current Balance</p><Wallet className="h-8 w-8 opacity-80" /></div><p className="text-5xl font-bold mt-2">₦ {balance.toLocaleString()}</p></div>
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/60"><h3 className="text-lg font-semibold text-slate-700 flex items-center mb-4"><PlusCircle className="mr-2 text-emerald-600" /> Top Up Your Wallet</h3><form onSubmit={handleTopUp} className="flex flex-col md:flex-row items-center gap-4"><div className="relative w-full"><span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-500">₦</span><input type="number" value={topUpAmount} onChange={(e) => setTopUpAmount(e.target.value)} placeholder="e.g., 5000" className="w-full pl-8 pr-4 py-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition"/></div><button type="submit" disabled={isTopUpLoading} className="w-full md:w-auto flex items-center justify-center bg-slate-800 text-white py-3.5 px-6 rounded-lg font-semibold whitespace-nowrap hover:bg-slate-700 transition-colors disabled:bg-slate-400">{isTopUpLoading ? 'Processing...' : 'Proceed to Pay'}{!isTopUpLoading && <ArrowRight className="ml-2 h-5 w-5" />}</button></form></div>
           
-          {/* --- NEW WITHDRAWAL CARD --- */}
           <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-200/60">
             <h3 className="text-lg font-semibold text-slate-700 flex items-center mb-4"><ArrowDownCircle className="mr-2 text-red-600" /> Withdraw Funds</h3>
             <form onSubmit={handleInitiateWithdrawal} className="space-y-4">

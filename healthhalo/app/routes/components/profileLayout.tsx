@@ -40,7 +40,6 @@ interface ApiUserProfile {
   insurance_details: string;
 }
 
-// --- FIX #1: FormSection is moved OUTSIDE the main component to prevent re-creation ---
 const FormSection: React.FC<{
   title: string;
   icon: React.ReactNode;
@@ -76,7 +75,6 @@ const ProfileLayout = () => {
         const response = await axios.get(`${API_BASE_URL}/api/health-sub/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // Ensure arrays are initialized properly even if they are null from API
         setProfile({
           ...response.data,
           conditions: response.data.conditions || [],
@@ -88,7 +86,6 @@ const ProfileLayout = () => {
         setSaveStatus("idle");
       } catch (err) {
         if (axios.isAxiosError(err) && err.response?.status === 404) {
-          // It's a new user, so initialize with an empty but valid profile object
           setProfile({} as ApiUserProfile);
           setSaveStatus("idle");
         } else {

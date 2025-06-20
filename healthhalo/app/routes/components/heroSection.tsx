@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import AuthForm from './authForm'; // Make sure this path is correct
+import AuthForm from './authForm';
 import { Sparkles, Heart, Shield, Users } from 'lucide-react';
 
 const HeroSection = () => {

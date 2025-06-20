@@ -33,7 +33,6 @@ const SuccessPage = () => {
       }
 
       try {
-        // --- THIS IS THE CORRECTED LINE ---
         const response = await fetch(`https://healthhalo-payment-1.onrender.com/api/payment/verify?reference=${reference}`);
         const result = await response.json();
 
