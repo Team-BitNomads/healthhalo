@@ -105,28 +105,15 @@ const WalletLayout = () => {
     if (savedBalance) {
       setBalance(parseFloat(savedBalance));
     } else {
-      localStorage.setItem("walletBalance", "25000");
-      setBalance(25000);
+      localStorage.setItem("walletBalance", "0");
+      setBalance(0);
     }
 
     const savedHistory = localStorage.getItem("transactionHistory");
     if (savedHistory) {
       setTransactions(JSON.parse(savedHistory));
     } else {
-      const mockTransactions: LocalTransaction[] = [
-        {
-          id: "tx1",
-          type: "Premium Payment",
-          amount: 2500,
-          date: new Date().toISOString(),
-        },
-        {
-          id: "tx2",
-          type: "Wallet Top-up",
-          amount: 10000,
-          date: new Date(Date.now() - 86400000).toISOString(),
-        }, // 1 day ago
-      ];
+      const mockTransactions: LocalTransaction[] = [];
       setTransactions(mockTransactions);
       localStorage.setItem(
         "transactionHistory",
