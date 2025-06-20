@@ -325,6 +325,7 @@ const ProfileLayout = () => {
                   value={profile.height_cm}
                   onChange={handleInputChange}
                   className="w-full p-2 border border-slate-300 rounded-md"
+                  required={false}
                 />
                 <input
                   type="number"
@@ -333,6 +334,7 @@ const ProfileLayout = () => {
                   value={profile.weight_kg}
                   onChange={handleInputChange}
                   className="w-full p-2 border border-slate-300 rounded-md"
+                  required={false}
                 />
                 <select
                   name="exercise_frequency"
