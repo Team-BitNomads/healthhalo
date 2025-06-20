@@ -17,7 +17,7 @@ const PAYMENT_SERVER_URL = "https://healthhalo-payment.onrender.com"; // Your li
 interface ApiTransaction {
   id: number;
   amount: string;
-  transaction_type: "topup" | "withdrawal" | "payment";
+  transaction_type: "topup" | "withdrawal" ;
   timestamp: string;
   description: string;
 }
