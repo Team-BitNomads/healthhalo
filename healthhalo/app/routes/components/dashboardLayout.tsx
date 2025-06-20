@@ -39,7 +39,6 @@ const DashboardLayout = () => {
       });
       const userProfile: ApiUserProfile = response.data;
 
-      setUserName(userProfile.full_name || 'User');
       setIsProfileComplete(isProfileFullyFilled(userProfile));
       setHealthTips(generateHealthTips(userProfile as any));
       // You can add your wallet balance fetch logic here later
@@ -47,8 +46,6 @@ const DashboardLayout = () => {
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 404) {
         setIsProfileComplete(false);
-        const localProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-        setUserName(localProfile.fullName || 'User');
       } else {
         console.error("Failed to fetch dashboard data:", error);
       }
@@ -56,6 +53,8 @@ const DashboardLayout = () => {
     } finally {
       setIsLoading(false);
     }
+    const localProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+    setUserName(localProfile.username || 'User');
   };
 
   useEffect(() => {

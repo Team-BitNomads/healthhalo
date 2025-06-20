@@ -1,6 +1,6 @@
 # 🛡HealthHalo
 
-**Your Personal Health Insurance Guide for Africa**
+## Your Personal Health Insurance Guide for Africa
 
 HealthHalo is an AI-driven web application designed to simplify health insurance for underserved communities in Africa. It leverages conversational AI, mobile payments, and a user-friendly interface to help users **find**, **pay for**, and **manage** affordable micro-health insurance plans.
 

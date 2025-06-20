@@ -7,4 +7,5 @@ export default [index("routes/home.tsx"),
   route("wallet","routes/walletPage.tsx"),
   route("payment/success","routes/success.tsx"),
   route("circles","routes/circlePage.tsx"),
+  route("/circles/:circleId","routes/circleDetailPage.tsx"),
 ] satisfies RouteConfig;

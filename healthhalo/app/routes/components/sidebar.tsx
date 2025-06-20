@@ -172,14 +172,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: "Dashboard",
     },
     {
+      to: "/circles",
+      icon: <Users className="h-5 w-5" />,
+      label: "Halo Circles",
+    },
+    {
       to: "/chatbot",
       icon: <MessageSquare className="h-5 w-5" />,
       label: "AI Assistant",
-    },
-    {
-      to: "/circles",
-      icon: <Users className="h-5 w-5" />,
-      label: "HealthHalo Circles",
     },
     {
       to: "/wallet",

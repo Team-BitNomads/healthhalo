@@ -250,10 +250,9 @@ const AuthForm = () => {
       ? `${API_BASE_URL}/api/user-auth/login/`
       : `${API_BASE_URL}/api/user-auth/signup/`;
     const payload = isLogin
-      ? { username: formData.email, password: formData.password }
+      ? { username: formData.username, password: formData.password }
       : {
-          username: formData.email,
-          full_name: formData.username,
+          username: formData.username,
           email: formData.email,
           password: formData.password,
           phone: formData.phone,
@@ -277,7 +276,7 @@ const AuthForm = () => {
 
       localStorage.setItem("access_token", data.access);
       const userDetails = {
-        fullName: data.full_name || formData.username,
+        username: data.username || formData.username,
         email: data.email || formData.email,
         phone: data.phone || formData.phone,
         language: formData.language,
@@ -365,13 +364,13 @@ const AuthForm = () => {
               <div className="space-y-5">
                 <FormInput
                   icon={<Mail className="h-5 w-5" />}
-                  label="Email Address"
-                  field="email"
-                  name="email"
-                  type="email"
-                  placeholder="Enter your email address"
+                  label="Username"
+                  field="username"
+                  name="username"
+                  type="text"
+                  placeholder="Enter your username"
                   required={isLogin}
-                  value={formData.email}
+                  value={formData.username}
                   onChange={handleInputChange}
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField("")}
@@ -387,11 +386,11 @@ const AuthForm = () => {
               <div className="space-y-5">
                 <FormInput
                   icon={<User className="h-5 w-5" />}
-                  label="Full Name"
+                  label="Username"
                   field="username"
                   name="username"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your Username"
                   required={!isLogin}
                   value={formData.username}
                   onChange={handleInputChange}
@@ -401,7 +400,7 @@ const AuthForm = () => {
                 />
                 <FormInput
                   icon={<Mail className="h-5 w-5" />}
-                  label="Email Address (for login)"
+                  label="Email Address"
                   field="email"
                   name="email"
                   type="email"

@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Wallet,
   PlusCircle,
@@ -9,30 +8,28 @@ import {
   X,
   Loader,
 } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
-const API_BASE_URL = "https://healthhalo.onrender.com"; // Your live backend URL
 const PAYMENT_SERVER_URL = "https://healthhalo-payment.onrender.com"; // Your live payment server
 
-// --- Type to match the API's transaction object ---
-interface ApiTransaction {
-  id: number;
-  amount: string;
-  transaction_type: "topup" | "withdrawal" ;
-  timestamp: string;
-  description: string;
+// --- Local Transaction Type ---
+interface LocalTransaction {
+  id: string; // Use a string for local IDs
+  type: "Wallet Top-up" | "Withdrawal" | "Premium Payment";
+  amount: number;
+  date: string; // Storing as ISO string
 }
 
-// --- Withdrawal Modal Props ---
+// --- Withdrawal Modal Component ---
 interface WithdrawalModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => Promise<void>;
+  onConfirm: () => void;
   isLoading: boolean;
   amount: string;
   password: string;
-  setPassword: React.Dispatch<React.SetStateAction<string>>;
+  setPassword: (password: string) => void;
 }
-// --- Withdrawal Modal ---
 const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
   isOpen,
   onClose,
@@ -43,102 +40,109 @@ const WithdrawalModal: React.FC<WithdrawalModalProps> = ({
   setPassword,
 }) => {
   if (!isOpen) return null;
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-lg p-8 w-full max-w-md shadow-lg relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-[fadeIn_0.3s_ease-in-out]">
+      <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full m-4 transform animate-[scaleUp_0.4s_ease-in-out_forwards]">
         <button
-          className="absolute top-3 right-3 text-slate-400 hover:text-slate-700"
           onClick={onClose}
           disabled={isLoading}
+          className="absolute top-4 right-4 p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
         >
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5" />
         </button>
-        <h2 className="text-xl font-bold mb-4 text-slate-800">Confirm Withdrawal</h2>
-        <p className="mb-4 text-slate-600">
-          You are about to withdraw <span className="font-semibold">₦{parseFloat(amount || "0").toLocaleString()}</span> from your wallet.
+        <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-gradient-to-r from-red-500 to-orange-500 mb-5 shadow-lg">
+          <Shield className="h-8 w-8 text-white" />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 text-center">
+          Confirm Withdrawal
+        </h2>
+        <p className="mt-2 text-center text-slate-500">
+          You are about to withdraw{" "}
+          <span className="font-bold text-slate-800">
+            ₦{parseFloat(amount || "0").toLocaleString()}
+          </span>
+          . Please enter your password to authorize this transaction.
         </p>
-        <label className="block mb-2 text-sm font-medium text-slate-600">
-          Enter your password to confirm:
-        </label>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border border-slate-300 rounded-md mb-4"
-          disabled={isLoading}
-        />
-        <button
-          onClick={onConfirm}
-          className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center"
-          disabled={isLoading}
-        >
-          {isLoading ? <Loader className="animate-spin h-5 w-5 mr-2" /> : null}
-          {isLoading ? "Processing..." : "Confirm Withdrawal"}
-        </button>
+        <div className="mt-6 space-y-4">
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Enter your account password"
+            className="w-full p-3 border-2 border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 transition-colors"
+            disabled={isLoading}
+          />
+          <button
+            onClick={onConfirm}
+            disabled={isLoading || !password}
+            className="w-full flex items-center justify-center bg-red-600 text-white p-3.5 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:bg-red-400 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <Loader className="animate-spin h-5 w-5" />
+            ) : (
+              `Withdraw ₦${parseFloat(amount || "0").toLocaleString()}`
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
 };
 
 const WalletLayout = () => {
-  // --- STATE MANAGEMENT ---
   const [balance, setBalance] = useState<number>(0);
-  const [transactions, setTransactions] = useState<ApiTransaction[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  // Top-up State
-  const [topUpAmount, setTopUpAmount] = useState<string>("");
+  const [transactions, setTransactions] = useState<LocalTransaction[]>([]);
   const [isTopUpLoading, setIsTopUpLoading] = useState(false);
-
-  // Withdrawal State
   const [withdrawalAmount, setWithdrawalAmount] = useState<string>("");
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [withdrawPassword, setWithdrawPassword] = useState("");
   const [isWithdrawing, setIsWithdrawing] = useState(false);
+  const [topUpAmount, setTopUpAmount] = useState<string>("");
 
-  // --- DATA FETCHING ---
-  const fetchWalletData = async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      setError("Authentication Error. Please log in again.");
-      setIsLoading(false);
-      return;
+  const loadWalletData = () => {
+    const savedBalance = localStorage.getItem("walletBalance");
+    if (savedBalance) {
+      setBalance(parseFloat(savedBalance));
+    } else {
+      localStorage.setItem("walletBalance", "25000");
+      setBalance(25000);
     }
 
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/wallet/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const walletData = response.data.wallet;
-      setBalance(parseFloat(walletData.balance));
-      // Sort transactions by newest first
-      setTransactions(
-        walletData.transactions.sort(
-          (a: ApiTransaction, b: ApiTransaction) =>
-            new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-        )
+    const savedHistory = localStorage.getItem("transactionHistory");
+    if (savedHistory) {
+      setTransactions(JSON.parse(savedHistory));
+    } else {
+      const mockTransactions: LocalTransaction[] = [
+        {
+          id: "tx1",
+          type: "Premium Payment",
+          amount: 2500,
+          date: new Date().toISOString(),
+        },
+        {
+          id: "tx2",
+          type: "Wallet Top-up",
+          amount: 10000,
+          date: new Date(Date.now() - 86400000).toISOString(),
+        }, // 1 day ago
+      ];
+      setTransactions(mockTransactions);
+      localStorage.setItem(
+        "transactionHistory",
+        JSON.stringify(mockTransactions)
       );
-      setError(null);
-    } catch (err) {
-      console.error("Failed to fetch wallet data:", err);
-      setError("Could not load wallet information. Please try again later.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchWalletData();
-    // Add event listener to refetch data on window focus
-    window.addEventListener("focus", fetchWalletData);
+    loadWalletData();
+    window.addEventListener("focus", loadWalletData);
     return () => {
-      window.removeEventListener("focus", fetchWalletData);
+      window.removeEventListener("focus", loadWalletData);
     };
-  }, []); // Empty array ensures this runs only on mount and on focus
+  }, []);
 
-  // --- HANDLER FUNCTIONS ---
   const handleTopUp = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!topUpAmount || parseFloat(topUpAmount) <= 0)
@@ -182,58 +186,43 @@ const WalletLayout = () => {
     setIsWithdrawModalOpen(true);
   };
 
-  const handleConfirmWithdrawal = async () => {
+  const handleConfirmWithdrawal = () => {
     if (!withdrawPassword)
       return alert("Please enter your password to confirm.");
+    // For this mock flow, we can just check if a password was entered.
+    // In a real app, you would send this to a backend to verify.
     setIsWithdrawing(true);
-    const token = localStorage.getItem("access_token");
 
-    try {
-      // --- THIS IS THE REAL API CALL ---
-      await axios.post(
-        `${API_BASE_URL}/api/wallet/`,
-        {
-          amount: parseFloat(withdrawalAmount),
-          transaction_type: "withdrawal",
-          description: "User withdrawal",
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+    setTimeout(() => {
+      const amount = parseFloat(withdrawalAmount);
+      const newBalance = balance - amount;
+
+      const newTransaction: LocalTransaction = {
+        id: `WTH-${Date.now()}`,
+        type: "Withdrawal",
+        amount: amount,
+        date: new Date().toISOString(),
+      };
+
+      const currentHistory = JSON.parse(
+        localStorage.getItem("transactionHistory") || "[]"
+      );
+      const updatedHistory = [newTransaction, ...currentHistory];
+
+      localStorage.setItem("walletBalance", newBalance.toString());
+      localStorage.setItem(
+        "transactionHistory",
+        JSON.stringify(updatedHistory)
       );
 
-      alert("Withdrawal successful!");
-      // Refresh all data from the backend
-      fetchWalletData();
-    } catch (err) {
-      console.error("Withdrawal failed:", err);
-      const errorMessage =
-        axios.isAxiosError(err) && err.response?.data?.error
-          ? err.response.data.error
-          : "An unknown error occurred.";
-      alert(`Withdrawal Failed: ${errorMessage}`);
-    } finally {
       setIsWithdrawing(false);
       setIsWithdrawModalOpen(false);
       setWithdrawalAmount("");
       setWithdrawPassword("");
-    }
+      loadWalletData();
+      alert("Withdrawal successful!");
+    }, 2000);
   };
-
-  // Helper to format transaction type for display
-  const formatTransactionType = (type: string) => {
-    if (type === "topup") return "Wallet Top-up";
-    if (type === "withdrawal") return "Withdrawal";
-    return "Payment";
-  };
-
-  if (isLoading)
-    return <div className="text-center p-10">Loading Your Wallet...</div>;
-  if (error)
-    return <div className="text-red-500 p-10 text-center">{error}</div>;
 
   return (
     <div className="animate-fadeInUp">
@@ -356,22 +345,20 @@ const WalletLayout = () => {
               transactions.map((tx) => (
                 <div key={tx.id} className="flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-slate-700">
-                      {formatTransactionType(tx.transaction_type)}
-                    </p>
+                    <p className="font-medium text-slate-700">{tx.type}</p>
                     <p className="text-xs text-slate-400">
-                      {new Date(tx.timestamp).toLocaleDateString()}
+                      {new Date(tx.date).toLocaleDateString()}
                     </p>
                   </div>
                   <p
                     className={`font-bold ${
-                      tx.transaction_type === "topup"
+                      tx.type === "Wallet Top-up"
                         ? "text-green-500"
                         : "text-red-500"
                     }`}
                   >
-                    {tx.transaction_type === "topup" ? "+" : "-"} ₦
-                    {parseFloat(tx.amount).toLocaleString()}
+                    {tx.type === "Wallet Top-up" ? "+" : "-"} ₦
+                    {tx.amount.toLocaleString()}
                   </p>
                 </div>
               ))
