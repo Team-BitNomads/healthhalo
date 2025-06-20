@@ -6,4 +6,5 @@ export default [index("routes/home.tsx"),
   route("chatbot","routes/chatbotPage.tsx"),
   route("wallet","routes/walletPage.tsx"),
   route("payment/success","routes/success.tsx"),
+  route("circles","routes/circlePage.tsx"),
 ] satisfies RouteConfig;

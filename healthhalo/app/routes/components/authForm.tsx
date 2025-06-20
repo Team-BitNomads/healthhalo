@@ -11,6 +11,10 @@ import {
   CheckCircle,
   Sparkles,
   X,
+  Shield,
+  BookOpen,
+  Heart,
+  UserCheck,
 } from "lucide-react";
 import { languages } from "../../data/languages";
 import { getCookie } from "../../utils/getCookie";
@@ -77,24 +81,90 @@ const FormInput: React.FC<FormInputProps> = ({
 const TermsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-[fadeIn_0.3s_ease-in-out]">
     <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full m-4 transform animate-[scaleUp_0.4s_ease-in-out_forwards]">
-      <button
-        onClick={onClose}
-        className="absolute top-4 right-4 p-1 rounded-full hover:bg-slate-100"
-      >
-        <X className="h-5 w-5 text-slate-500" />
-      </button>
-      <h2 className="text-2xl font-bold text-slate-800">
-        Terms and Conditions
-      </h2>
-      <div className="prose prose-sm mt-4 max-h-[60vh] overflow-y-auto pr-4 text-slate-600">
-        {/* ... Terms content ... */}
-      </div>
-      <div className="mt-6 text-right">
+      {/* Header and Close Button */}
+      <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+          <Shield className="h-7 w-7 text-emerald-600" />
+          Terms and Conditions
+        </h2>
         <button
           onClick={onClose}
-          className="bg-emerald-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-emerald-700"
+          className="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors"
         >
-          I Understand
+          <X className="h-5 w-5" />
+        </button>
+      </div>
+
+      {/* Scrollable Content Area */}
+      <div className="mt-6 max-h-[60vh] overflow-y-auto pr-4 space-y-6 text-slate-600 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-thumb-rounded-full">
+        <p className="text-base">
+          Welcome to HealthHalo! By creating an account, you agree to these
+          terms. Please read them carefully to understand your rights and
+          responsibilities.
+        </p>
+
+        {/* Section 1: Data Usage */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-lg text-slate-800 flex items-center gap-2">
+            <BookOpen className="h-5 w-5 text-emerald-500" />
+            1. Data Usage for AI Recommendations
+          </h4>
+          <p className="leading-relaxed">
+            You consent to HealthHalo using the personal and health information
+            you provide (such as age, location, and health conditions) to power
+            our AI recommendation engines. This data is essential for us to
+            suggest personalized health insurance plans and provide tailored
+            health tips. We are committed to protecting your privacy; all data
+            is handled securely and anonymized where possible for analysis.
+          </p>
+        </div>
+
+        {/* Section 2: Medical Disclaimer */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-lg text-slate-800 flex items-center gap-2">
+            <Heart className="h-5 w-5 text-emerald-500" />
+            2. Not Medical Advice
+          </h4>
+          <p className="leading-relaxed">
+            The information, health tips, and AI-generated suggestions provided
+            by HealthHalo are for informational purposes only and **do not**
+            constitute professional medical advice, diagnosis, or treatment.
+            Always seek the advice of a qualified healthcare professional for
+            any medical concerns.
+          </p>
+        </div>
+
+        {/* Section 3: User Responsibilities */}
+        <div className="space-y-2">
+          <h4 className="font-semibold text-lg text-slate-800 flex items-center gap-2">
+            <UserCheck className="h-5 w-5 text-emerald-500" />
+            3. Your Responsibilities
+          </h4>
+          <ul className="list-disc list-inside space-y-1 pl-2 leading-relaxed">
+            <li>
+              You are responsible for maintaining the confidentiality of your
+              account password.
+            </li>
+            <li>
+              You must provide accurate and current information and update it as
+              necessary.
+            </li>
+            <li>You agree not to use our service for any unlawful purpose.</li>
+          </ul>
+        </div>
+
+        <p className="pt-4 text-sm text-slate-500">
+          Last updated: June 20, 2025
+        </p>
+      </div>
+
+      {/* Footer and Action Button */}
+      <div className="mt-8 pt-6 border-t border-slate-200 text-right">
+        <button
+          onClick={onClose}
+          className="bg-emerald-600 text-white py-2.5 px-8 rounded-lg font-semibold hover:bg-emerald-700 transition-colors shadow-lg hover:shadow-emerald-500/30"
+        >
+          I Understand & Agree
         </button>
       </div>
     </div>

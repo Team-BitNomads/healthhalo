@@ -1,70 +1,32 @@
 {
   "navbar": {
-    "features": "Features",
-    "about_us": "About Us",
-    "contact": "Contact",
-    "get_started": "Get Started"
-  },
-  "landing": {
-    "hero_title": "Your Personal <1>Health Insurance</1> Guide for Africa.",
-    "hero_subtitle": "HealthHalo uses advanced AI to find affordable, personalized health insurance plans for you and your family.",
-    "hero_feature1": "AI-powered recommendations",
-    "hero_feature2": "Chat in your local language",
-    "hero_feature3": "Easy payments via Mobile Money"
+    "features": "Siffofin",
+    "about_us": "Game da Mu",
+    "contact": "Tuntuɓi Mu",
+    "get_started": "Fara"
   },
   "auth": {
-    "join_title": "Join HealthHalo",
-    "join_subtitle": "Start your journey to better health coverage.",
-    "login_title": "Welcome Back!",
-    "login_subtitle": "Access your Health Wallet and continue.",
-    "full_name_label": "Full Name",
-    "full_name_placeholder": "Enter your full name",
-    "email_label": "Email Address",
-    "email_placeholder": "Enter your email address",
-    "password_label": "Password",
-    "password_placeholder": "Enter your password",
-    "phone_label": "Phone Number",
-    "phone_placeholder": "e.g., +234...",
-    "language_label": "Preferred Language",
-    "language_placeholder": "Choose your language",
-    "terms_agree": "I agree to the",
-    "terms_link": "Terms and Conditions",
-    "create_account_button": "Create Your Account",
-    "login_button": "Sign In to Your Account",
-    "already_have_account": "Already have an account?",
-    "signin_instead": "Sign in instead",
-    "new_to_healthhalo": "New to HealthHalo?",
-    "create_new_account": "Create a new account"
+    "login_title": "Barka da dawowa!",
+    "logout": "Fita"
   },
   "sidebar": {
-    "main_menu": "Main Menu",
+    "main_menu": "Babban Menu",
     "dashboard": "Dashboard",
-    "ai_assistant": "AI Assistant",
-    "health_wallet": "Health Wallet",
-    "my_claims": "My Claims",
-    "profile": "Profile",
-    "logout": "Log Out"
+    "ai_assistant": "Mataimakin AI",
+    "health_wallet": "Lissafin Lafiya",
+    "my_claims": "Da'awace-da'awace Na",
+    "profile": "Bayanan martaba",
+    "logout": "Fita"
   },
   "dashboard": {
-    "welcome_back": "Welcome Back,",
-    "title": "{{name}}'s Health Dashboard",
-    "complete_profile_title": "Unlock Your Full Potential",
-    "complete_profile_subtitle": "Complete your profile for truly personalized recommendations.",
-    "complete_profile_button": "Complete Profile",
-    "wallet_balance": "Wallet Balance",
-    "talk_to_ai": "Talk to AI",
-    "file_claim": "File a Claim",
-    "health_focus_title": "AI-Generated Health Focus"
+    "welcome_back": "Barka da dawowa,",
+    "title": "Dashboard na Lafiya na {{name}}",
+    "wallet_balance": "Ma'aunin Lissafi"
   },
-  "footer": {
-    "tagline": "Simplifying health insurance for everyone.",
-    "company_header": "Company",
-    "about_us": "About Us",
-    "careers": "Careers",
-    "partners": "Partners",
-    "resources_header": "Resources",
-    "blog": "Blog",
-    "help_center": "Help Center",
-    "faqs": "FAQs"
+  "logout_modal": {
+    "title": "Tabbatar da Fita",
+    "message": "Ka tabbata kana son fita daga asusunka na HealthHalo?",
+    "cancel": "Soke",
+    "confirm": "Fita"
   }
 }

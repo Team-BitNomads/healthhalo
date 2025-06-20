@@ -1,29 +1,37 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios"; // Import axios for API calls
+import { getCookie } from "../../utils/getCookie"; // Import your cookie helper
 import {
   LayoutDashboard,
   Wallet,
   MessageSquare,
+  Users,
   FileText,
   UserCircle,
   LogOut,
   ShieldCheck,
   ChevronRight,
   ChevronLeft,
-  AlertTriangle, // For the logout modal
-  X, // For the close button
+  AlertTriangle,
+  X,
+  Loader, // Import Loader for the modal button
 } from "lucide-react";
+
+const API_BASE_URL = "https://healthhalo.onrender.com";
 
 // --- Reusable Logout Confirmation Modal ---
 interface LogoutModalProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  isLoading: boolean; // Prop to show loading state
 }
 const LogoutModal: React.FC<LogoutModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
+  isLoading,
 }) => {
   if (!isOpen) return null;
 
@@ -42,15 +50,21 @@ const LogoutModal: React.FC<LogoutModalProps> = ({
         <div className="mt-6 grid grid-cols-2 gap-4">
           <button
             onClick={onClose}
-            className="bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition-colors"
+            disabled={isLoading}
+            className="bg-slate-100 text-slate-700 py-3 rounded-lg font-semibold hover:bg-slate-200 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            disabled={isLoading}
+            className="bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors flex items-center justify-center disabled:bg-red-400"
           >
-            Log Out
+            {isLoading ? (
+              <Loader className="h-5 w-5 animate-spin" />
+            ) : (
+              "Log Out"
+            )}
           </button>
         </div>
       </div>
@@ -58,7 +72,7 @@ const LogoutModal: React.FC<LogoutModalProps> = ({
   );
 };
 
-// --- Reusable SidebarLink Component (This is correct) ---
+// --- Reusable SidebarLink Component ---
 type SidebarLinkProps = {
   to: string;
   icon: React.ReactNode;
@@ -121,15 +135,35 @@ const Sidebar: React.FC<SidebarProps> = ({
   onLinkClick,
 }) => {
   const navigate = useNavigate();
-  // --- NEW: State to manage the logout modal visibility ---
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogoutConfirm = () => {
-    console.log("User logged out");
-    // In a real app, you would also call your /api/user-auth/logout/ endpoint here
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("userProfile");
-    navigate("/");
+  const handleLogoutConfirm = async () => {
+    setIsLoggingOut(true);
+    try {
+      // As per the docs, we need credentials and CSRF token for this state-changing request
+      await axios.post(
+        `${API_BASE_URL}/api/user-auth/logout/`,
+        {},
+        {
+          headers: { "X-CSRFToken": getCookie("csrftoken") || "" },
+          withCredentials: true, // This is crucial for sending the HttpOnly refresh token cookie
+        }
+      );
+      console.log("Backend logout successful.");
+    } catch (error) {
+      console.error(
+        "Backend logout failed, but proceeding with frontend cleanup:",
+        error
+      );
+    } finally {
+      // This part runs whether the API call succeeds or fails
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("userProfile");
+      setIsLoggingOut(false);
+      setIsLogoutModalOpen(false);
+      navigate("/");
+    }
   };
 
   const navLinks = [
@@ -144,14 +178,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       label: "AI Assistant",
     },
     {
+      to: "/circles",
+      icon: <Users className="h-5 w-5" />,
+      label: "HealthHalo Circles",
+    },
+    {
       to: "/wallet",
       icon: <Wallet className="h-5 w-5" />,
       label: "Health Wallet",
-    },
-    {
-      to: "/claims",
-      icon: <FileText className="h-5 w-5" />,
-      label: "My Claims",
     },
     {
       to: "/profile_details",
@@ -166,10 +200,9 @@ const Sidebar: React.FC<SidebarProps> = ({
         isOpen={isLogoutModalOpen}
         onClose={() => setIsLogoutModalOpen(false)}
         onConfirm={handleLogoutConfirm}
+        isLoading={isLoggingOut}
       />
-
       <div className="relative flex flex-col h-full bg-gradient-to-b from-white via-slate-50/50 to-white p-4 border-r border-slate-200/60 backdrop-blur-sm transition-all duration-300">
-        {/* --- FIX: Increased z-index to ensure it's always on top --- */}
         <button
           onClick={onToggleCollapse}
           className="absolute -right-3 top-14 z-30 p-1.5 bg-white border border-slate-200 rounded-full shadow-md text-slate-500 hover:bg-slate-100 hover:text-emerald-600 transition-all"
@@ -216,7 +249,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               key={link.label}
               to={link.to}
               icon={link.icon}
-              isActive={currentPath === link.to}
+              isActive={currentPath.startsWith(link.to)}
               isCollapsed={isCollapsed}
               onClick={onLinkClick}
             >
@@ -226,7 +259,6 @@ const Sidebar: React.FC<SidebarProps> = ({
         </nav>
 
         <div className="mt-auto">
-          {/* --- FIX: Logout button now opens the modal --- */}
           <button
             onClick={() => setIsLogoutModalOpen(true)}
             className={`group flex items-center w-full px-3.5 py-3.5 rounded-xl font-semibold text-sm text-slate-600 hover:bg-red-50 hover:text-red-700 transition-all duration-300 border border-transparent hover:border-red-200/50 ${
