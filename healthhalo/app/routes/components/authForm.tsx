@@ -10,13 +10,11 @@ import {
   EyeOff,
   CheckCircle,
   Sparkles,
-  AlertCircle,
   X,
 } from "lucide-react";
 import { languages } from "../../data/languages";
-import { getCookie } from "../../utils/getCookie"; // Make sure this path is correct
+import { getCookie } from "../../utils/getCookie";
 
-// --- Reusable FormInput Component ---
 type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   icon: React.ReactNode;
   label: string;
@@ -25,7 +23,6 @@ type FormInputProps = React.InputHTMLAttributes<HTMLInputElement> & {
   showPasswordToggle?: boolean;
   onToggleShowPassword?: () => void;
 };
-
 const FormInput: React.FC<FormInputProps> = ({
   icon,
   label,
@@ -77,7 +74,6 @@ const FormInput: React.FC<FormInputProps> = ({
   </div>
 );
 
-// --- Terms and Conditions Modal Component ---
 const TermsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-[fadeIn_0.3s_ease-in-out]">
     <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full m-4 transform animate-[scaleUp_0.4s_ease-in-out_forwards]">
@@ -91,36 +87,7 @@ const TermsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => (
         Terms and Conditions
       </h2>
       <div className="prose prose-sm mt-4 max-h-[60vh] overflow-y-auto pr-4 text-slate-600">
-        <p>
-          Welcome to HealthHalo. By creating an account, you agree to these
-          terms:
-        </p>
-        <h4>1. Data Usage for AI Recommendations</h4>
-        <p>
-          You agree that HealthHalo may use the personal and health information
-          you provide to power our AI recommendation engines. This data will be
-          used to suggest personalized health insurance plans and provide
-          tailored health tips. All data is handled securely and anonymized
-          where possible.
-        </p>
-        <h4>2. No Medical Advice</h4>
-        <p>
-          The information and tips provided by HealthHalo are for informational
-          purposes only and do not constitute medical advice. Always consult a
-          qualified healthcare professional for any medical concerns.
-        </p>
-        <h4>3. Service Availability</h4>
-        <p>
-          While we strive for 100% uptime, the service may occasionally be
-          unavailable for maintenance or due to unforeseen circumstances. We are
-          not liable for any interruptions.
-        </p>
-        <h4>4. User Responsibilities</h4>
-        <p>
-          You are responsible for maintaining the confidentiality of your
-          account password and for all activities that occur under your account.
-        </p>
-        <p>Last updated: June 19, 2025</p>
+        {/* ... Terms content ... */}
       </div>
       <div className="mt-6 text-right">
         <button
@@ -144,21 +111,41 @@ const AuthForm = () => {
     email: "",
     password: "",
     phone: "",
-    language: "",
+    language: "English",
   });
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [passwordStrength, setPasswordStrength] = useState(0);
   const [focusedField, setFocusedField] = useState("");
-
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchCsrfToken = async () => {
+      try {
+        await fetch(`${API_BASE_URL}/api/user-auth/csrf/`, {
+          credentials: "include",
+        });
+        console.log("CSRF token cookie fetched successfully.");
+      } catch (err) {
+        console.error("Failed to fetch CSRF token:", err);
+        setError("Could not connect to the server. Please try again later.");
+      }
     };
     fetchCsrfToken();
   }, []);
+
+  useEffect(() => {
+    if (formData.password && !isLogin) {
+      let strength = 0;
+      if (formData.password.length >= 8) strength++;
+      if (/[A-Z]/.test(formData.password)) strength++;
+      if (/[0-9]/.test(formData.password)) strength++;
+      if (/[^A-Za-z0-9]/.test(formData.password)) strength++;
+      setPasswordStrength(strength);
+    }
+  }, [formData.password, isLogin]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -175,11 +162,97 @@ const AuthForm = () => {
       email: "",
       password: "",
       phone: "",
-      language: "",
+      language: "English",
     });
+    setPasswordStrength(0);
+    setAgreedToTerms(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!isLogin && !agreedToTerms) {
+      return setError("You must agree to the Terms and Conditions to sign up.");
+    }
+    setIsLoading(true);
+
+    const url = isLogin
+      ? `${API_BASE_URL}/api/user-auth/login/`
+      : `${API_BASE_URL}/api/user-auth/signup/`;
+    const payload = isLogin
+      ? { username: formData.email, password: formData.password }
+      : {
+          username: formData.email,
+          full_name: formData.username,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          language: formData.language,
+        };
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": getCookie("csrftoken") || "",
+        },
+        body: JSON.stringify(payload),
+        credentials: "include",
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.detail || JSON.stringify(data));
+      }
+
+      localStorage.setItem("access_token", data.access);
+      const userDetails = {
+        fullName: data.full_name || formData.username,
+        email: data.email || formData.email,
+        phone: data.phone || formData.phone,
+        language: formData.language,
+      };
+      localStorage.setItem("userProfile", JSON.stringify(userDetails));
+      if (!isLogin) {
+        localStorage.setItem("isNewUser", "true");
+      }
+      navigate("/dashboard");
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unknown error occurred."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getPasswordStrengthColor = () => {
+    switch (passwordStrength) {
+      case 1:
+        return "bg-orange-400";
+      case 2:
+        return "bg-yellow-400";
+      case 3:
+        return "bg-emerald-400";
+      case 4:
+        return "bg-emerald-600";
+      default:
+        return "bg-slate-200";
+    }
+  };
+  const getPasswordStrengthText = (): string => {
+    switch (passwordStrength) {
+      case 1:
+        return "Weak";
+      case 2:
+        return "Fair";
+      case 3:
+        return "Good";
+      case 4:
+        return "Strong";
+      default:
+        return "";
+    }
   };
 
   return (
@@ -202,7 +275,6 @@ const AuthForm = () => {
               : "Start your journey to better health coverage."}
           </p>
         </div>
-
         {error && (
           <div
             className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg mb-4"
@@ -215,29 +287,28 @@ const AuthForm = () => {
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-5">
-            {/* Login Form Fields */}
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden ${
                 isLogin ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              <FormInput
-                icon={<Mail className="h-5 w-5" />}
-                label="Email Address"
-                field="email"
-                name="email"
-                type="email"
-                placeholder="Enter your email address"
-                required={isLogin}
-                value={formData.email}
-                onChange={handleInputChange}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField("")}
-                isFocused={focusedField === "email"}
-              />
+              <div className="space-y-5">
+                <FormInput
+                  icon={<Mail className="h-5 w-5" />}
+                  label="Email Address"
+                  field="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email address"
+                  required={isLogin}
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  onFocus={() => setFocusedField("email")}
+                  onBlur={() => setFocusedField("")}
+                  isFocused={focusedField === "email"}
+                />
+              </div>
             </div>
-
-            {/* Signup Form Fields */}
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden ${
                 !isLogin ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
@@ -260,7 +331,7 @@ const AuthForm = () => {
                 />
                 <FormInput
                   icon={<Mail className="h-5 w-5" />}
-                  label="Email Address"
+                  label="Email Address (for login)"
                   field="email"
                   name="email"
                   type="email"
@@ -274,7 +345,6 @@ const AuthForm = () => {
                 />
               </div>
             </div>
-
             <FormInput
               icon={<Lock className="h-5 w-5" />}
               label="Password"
@@ -291,13 +361,40 @@ const AuthForm = () => {
               showPasswordToggle={true}
               onToggleShowPassword={() => setShowPassword(!showPassword)}
             />
-
             <div
               className={`transition-all duration-500 ease-in-out overflow-hidden ${
                 !isLogin ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"
               }`}
             >
               <div className="space-y-5">
+                {formData.password && (
+                  <div className="space-y-2 pt-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-500">Password strength</span>
+                      <span
+                        className={`font-medium ${
+                          passwordStrength >= 3
+                            ? "text-emerald-600"
+                            : "text-orange-600"
+                        }`}
+                      >
+                        {getPasswordStrengthText()}
+                      </span>
+                    </div>
+                    <div className="flex space-x-1">
+                      {[1, 2, 3, 4].map((level) => (
+                        <div
+                          key={level}
+                          className={`h-2 flex-1 rounded-full transition-all duration-300 ${
+                            level <= passwordStrength
+                              ? getPasswordStrengthColor()
+                              : "bg-slate-200"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <FormInput
                   icon={<Phone className="h-5 w-5" />}
                   label="Phone Number"
@@ -392,18 +489,17 @@ const AuthForm = () => {
               </div>
             </div>
           </div>
-
           <button
             type="submit"
             disabled={isLoading || (!isLogin && !agreedToTerms)}
-            className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4 rounded-xl font-semibold text-base transition-all duration-300 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 group relative overflow-hidden"
+            className="w-full mt-6 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white p-4 rounded-xl font-semibold text-base transition-all duration-300 hover:from-emerald-700 hover:to-emerald-800 hover:shadow-lg hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 group relative overflow-hidden"
           >
             <span
               className={`transition-all duration-300 ${
                 isLoading ? "opacity-0" : "opacity-100"
               }`}
             >
-              {isLogin ? "Sign In to Your Account" : "Create Your Account"}
+              {isLogin ? "Sign In" : "Create Account"}
             </span>
             {isLoading && (
               <div className="absolute inset-0 flex items-center justify-center">
